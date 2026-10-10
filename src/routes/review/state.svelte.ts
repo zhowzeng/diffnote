@@ -129,7 +129,7 @@ class ReviewState {
     }
   }
 
-  // Drops the Repo from Ziff — never the folder on disk. Its Comment Queue goes with
+  // Drops the Repo from Redline — never the folder on disk. Its Comment Queue goes with
   // it (docs/decisions/0009); the caller is the one that warns about unsent comments.
   async removeRepo(id: string) {
     try {

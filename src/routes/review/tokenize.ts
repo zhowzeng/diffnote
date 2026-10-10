@@ -8,7 +8,7 @@ import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
 import { bundledLanguages, type BundledLanguage } from 'shiki/langs';
 import type { SyntaxToken } from './highlight';
 
-const THEME = 'ziff';
+const THEME = 'redline';
 
 let highlighter: Promise<HighlighterCore> | null = null;
 

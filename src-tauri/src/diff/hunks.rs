@@ -192,7 +192,7 @@ mod tests {
         file_diff(&git_repo, file).expect("file diff").hunks
     }
 
-    /// Ziff's hunks written back out as unified diff text, so they can be held up
+    /// Redline's hunks written back out as unified diff text, so they can be held up
     /// against what `git diff` prints.
     fn as_unified(hunks: &[DiffHunk]) -> String {
         let mut out = String::new();
@@ -213,7 +213,7 @@ mod tests {
     }
 
     /// `git diff` from the first `@@` on, with the function context git appends to a
-    /// hunk header dropped -- Ziff's headers are the `@@ -a,b +c,d @@` part alone.
+    /// hunk header dropped -- Redline's headers are the `@@ -a,b +c,d @@` part alone.
     fn git_diff_hunks(dir: &std::path::Path, args: &[&str]) -> String {
         let mut all = vec!["-c", "diff.algorithm=histogram", "diff"];
         all.extend_from_slice(args);
@@ -283,7 +283,7 @@ mod tests {
         assert_eq!((changes.add, changes.del), (0, 0));
     }
 
-    /// The whole point of this module: a hunk Ziff shows has to name the same lines
+    /// The whole point of this module: a hunk Redline shows has to name the same lines
     /// `git diff` does, or the `path:L12` handed to a CLI agent points somewhere else.
     #[test]
     fn hunks_match_what_git_diff_prints() {

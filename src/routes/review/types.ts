@@ -74,7 +74,7 @@ export interface FileDiff {
 
 export interface FileContent {
   lines: string[];
-  /** A file Ziff cannot number by line, so File View says so instead of showing it. */
+  /** A file Redline cannot number by line, so File View says so instead of showing it. */
   binary: boolean;
 }
 

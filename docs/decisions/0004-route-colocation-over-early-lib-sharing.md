@@ -1,6 +1,6 @@
 # Route-local code colocates with the route; `lib/` only for cross-route sharing
 
-Component, state, helper, type, and API-wrapper code that serves a single route lives inside that route's own folder under `src/routes/`, added and removed alongside the route, and moves to `src/lib/<feature>/` only once a second route or surface actually needs it — colocation by default, lifted on confirmed reuse rather than in anticipation of it. Svelte 5 state modules, in either location, use the rune-based `state.svelte.ts` naming convention; see the `ziff-frontend` skill for the state-module patterns.
+Component, state, helper, type, and API-wrapper code that serves a single route lives inside that route's own folder under `src/routes/`, added and removed alongside the route, and moves to `src/lib/<feature>/` only once a second route or surface actually needs it — colocation by default, lifted on confirmed reuse rather than in anticipation of it. Svelte 5 state modules, in either location, use the rune-based `state.svelte.ts` naming convention; see the `redline-frontend` skill for the state-module patterns.
 
 ## Considered Options
 

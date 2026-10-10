@@ -4,7 +4,7 @@
 
 ## Consequences
 
-Ziff no longer offers the PR-shaped diff of committed work alone. Nothing in the worktree backs that comparison, so no [[Comment]] written against it could anchor (ADR 0010) — it would be a browse-only mode.
+Redline no longer offers the PR-shaped diff of committed work alone. Nothing in the worktree backs that comparison, so no [[Comment]] written against it could anchor (ADR 0010) — it would be a browse-only mode.
 
 ## Considered Options
 

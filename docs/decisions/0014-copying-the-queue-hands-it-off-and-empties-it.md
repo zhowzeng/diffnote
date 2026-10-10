@@ -1,6 +1,6 @@
 # Copying the Comment Queue hands it off and empties it
 
-Copying the [[Comment Queue]] for a CLI agent clears it: that copy is the hand-off, and a Comment that has been handed off has done its job. Leaving the Comments behind means the next copy sends the agent work it already did, and it is also the only way a Comment outlives the edit it asked for — which is the drift ADR 0013 exists to catch, arriving by a route Ziff could simply not take. [[Copy Now]] already works this way (ADR 0001); this makes the bulk hand-off agree with it.
+Copying the [[Comment Queue]] for a CLI agent clears it: that copy is the hand-off, and a Comment that has been handed off has done its job. Leaving the Comments behind means the next copy sends the agent work it already did, and it is also the only way a Comment outlives the edit it asked for — which is the drift ADR 0013 exists to catch, arriving by a route Redline could simply not take. [[Copy Now]] already works this way (ADR 0001); this makes the bulk hand-off agree with it.
 
 ## Consequences
 

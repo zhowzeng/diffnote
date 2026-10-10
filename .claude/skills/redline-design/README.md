@@ -1,8 +1,8 @@
-# Ziff Design System
+# Redline Design System
 
 ## Company & product
 
-Ziff is a desktop app for code review. It connects to GitHub, syncs pull requests and review comments, and gives a clean, friendly diff-reading interface — so reviewers can take notes quickly while reading code, organize their feedback, and copy review context to CLI coding agents (Codex, Claude, etc.).
+Redline is a desktop app for code review. It connects to GitHub, syncs pull requests and review comments, and gives a clean, friendly diff-reading interface — so reviewers can take notes quickly while reading code, organize their feedback, and copy review context to CLI coding agents (Codex, Claude, etc.).
 
 **Origin:** the system began as a GitHub-inspired first pass built from one screenshot. It has since been redesigned freely, with the owner's approval, into the calm, steady look described below; GitHub's tokens are no longer a constraint. The owner's stated direction: stable and composed, not flashy.
 
@@ -44,7 +44,7 @@ Settings and empty states: `src/lib/components/SettingsModal.svelte` (Modal + Se
 - `guidelines/colors-*.html` — neutral ramp, accent, semantic, diff colors
 - `guidelines/type-*.html` — sans and mono type scales
 - `guidelines/spacing-scale.html`, `guidelines/radius-elevation.html`
-- `guidelines/brand-wordmark.html` — the type-only "Ziff" wordmark placeholder
+- `guidelines/brand-wordmark.html` — the type-only "Redline" wordmark placeholder
 
 Open any of these directly in a browser to preview a token category — they link straight to the app's real tokens (`../../../../src/lib/styles/tokens/index.css`), not a local copy.
 
@@ -79,7 +79,7 @@ Single source of truth: `src/lib/styles/tokens/{colors,typography,spacing}.css` 
 
 ## ICONOGRAPHY
 
-Small monochrome line icons (chevrons, copy, emoji-reaction) — a stroke-based icon set. Uses **Lucide** (lucide.dev, MIT-licensed). In this repo, use the `lucide-svelte` package via `src/lib/components/Icon.svelte`. This is a **substitution, flagged for the user**: if Ziff's real app uses a different icon set, swap it out.
+Small monochrome line icons (chevrons, copy, emoji-reaction) — a stroke-based icon set. Uses **Lucide** (lucide.dev, MIT-licensed). In this repo, use the `lucide-svelte` package via `src/lib/components/Icon.svelte`. This is a **substitution, flagged for the user**: if Redline's real app uses a different icon set, swap it out.
 
 ## Fonts
 
@@ -94,7 +94,7 @@ The `Logo` component (`src/lib/components/Logo.svelte`) is a Z built from a diff
 Only genuine design questions live here — things that need a person to decide or an example to point to. Implementation-only follow-ups (add a library, wire up real state) have been moved out: they don't need another pass through this design system, and listing them here just clutters the one list that's supposed to say what still needs design input.
 
 1. Final brand assets: the **logo** above is a designed placeholder, and the steel-blue accent is the owner's approved direction but not yet a formal brand spec.
-2. Confirmation of tone/voice guidelines — there's now a real body of applied copy to point to (`SettingsModal`, the empty states, comment threads), all following the same terse dev-to-dev voice, but nobody's signed off that it's actually right for Ziff.
+2. Confirmation of tone/voice guidelines — there's now a real body of applied copy to point to (`SettingsModal`, the empty states, comment threads), all following the same terse dev-to-dev voice, but nobody's signed off that it's actually right for Redline.
 
 **Resolved (kept for history, not action items):** additional screens — PR list/inbox (ruled out of scope for v1: local repos/diffs only), settings, empty states, the copy-to-agent flow (turned out to be plain copy-to-clipboard), and the Project dropdown's "add new" entry are all designed and shipped in `src/lib/components/` and `review/+page.svelte`.
 

@@ -5,7 +5,7 @@
 </script>
 
 <!-- The mark is a Z cut from a diff: a short add bar on top, a remove bar below, joined by the stroke between them. -->
-<svg width={size} height={size} viewBox="0 0 32 32" fill="none" role="img" aria-label="Ziff">
+<svg width={size} height={size} viewBox="0 0 32 32" fill="none" role="img" aria-label="Redline">
   <defs>
     <linearGradient id="g{id}" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
       <stop stop-color="#3f6d9f" />

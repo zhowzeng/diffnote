@@ -71,7 +71,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 # Project Docs
 
-- `CONTEXT.md` — domain glossary for Ziff (canonical terms, what to avoid). Check it before naming new concepts.
+- `CONTEXT.md` — domain glossary for Redline (canonical terms, what to avoid). Check it before naming new concepts.
 - `docs/decisions/` — ADRs recording hard-to-reverse or non-obvious decisions. Check it before revisiting an architectural or scope decision.
 
 # User Preference

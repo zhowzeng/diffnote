@@ -24,7 +24,7 @@ const DEFAULT_SETTINGS: Settings = {
   prefixPrompt: '',
 };
 
-const STORAGE_KEY = 'ziff.settings';
+const STORAGE_KEY = 'redline.settings';
 
 const THEMES: Theme[] = ['system', 'light', 'dark'];
 const DIFF_FONT_SIZES: DiffFontSize[] = ['sm', 'md', 'lg'];

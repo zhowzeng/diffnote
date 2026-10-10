@@ -1,6 +1,6 @@
 ---
-name: ziff-design
-description: Use this skill to generate well-branded interfaces and assets for Ziff, either for production or throwaway prototypes/mocks/etc. Contains essential design guidelines, colors, type, fonts, assets, and UI kit components for prototyping.
+name: redline-design
+description: Use this skill to generate well-branded interfaces and assets for Redline, either for production or throwaway prototypes/mocks/etc. Contains essential design guidelines, colors, type, fonts, assets, and UI kit components for prototyping.
 user-invocable: true
 ---
 

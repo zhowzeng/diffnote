@@ -57,7 +57,7 @@
 <header class="topbar">
   <div class="brand">
     <Logo size={22} />
-    <span class="wordmark">Ziff</span>
+    <span class="wordmark">Redline</span>
   </div>
   <Dropdown
     icon="folder"
@@ -67,7 +67,7 @@
     onChange={onSelectRepo}
     onAddNew={onAddRepo}
     addNewLabel="Add repo…"
-    optionAction={{ icon: "trash-2", title: "從 Ziff 移除（不會刪除資料夾）", onAction: onRemoveRepo }}
+    optionAction={{ icon: "trash-2", title: "從 Redline 移除（不會刪除資料夾）", onAction: onRemoveRepo }}
     placeholder="Select repo…"
     width={260}
   />
