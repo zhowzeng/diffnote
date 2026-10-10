@@ -66,7 +66,7 @@ Single source of truth: `src/lib/styles/tokens/{colors,typography,spacing}.css` 
 - **Palette**: calm and steady. Cool slate neutrals on a lightly tinted canvas with white cards in light; deep blue-black in dark (Settings → Theme: System / Light / Dark; tokens redefined under `:root[data-theme="dark"]` and the OS preference in `colors.css`). One restrained brand accent, steel blue (`--accent`), used for primary actions, the active file row, the branch pill, comment affordances and focus rings. No gradients or glows in the working UI. Diff add/remove stay green/red. Components must use semantic tokens (`--bg-raised`, `--bg-active`, `--on-emphasis`, `--text-*`), never raw `--gray-*`/hex, so both themes work.
 - **Type**: **Geist** for UI, **Geist Mono** for code, **Instrument Serif** (display) for the Welcome headline only. All three are bundled via `@fontsource` — no network needed at runtime; CJK falls through to the OS font.
 - **Spacing**: 4px base unit, scale at 4/8/12/16/20/24/32/48/64.
-- **Backgrounds**: flat and functional in the working UI. The first-run `Welcome` screen is just as quiet: serif headline, one button, a static mini diff. The `Logo` mark is a subtle steel-blue fill with one red highlight.
+- **Backgrounds**: flat and functional in the working UI. The first-run `Welcome` screen is just as quiet: serif headline, one button, a static mini diff. The `Logo` mark is a subtle steel-blue fill.
 - **Animation**: restrained and purposeful, driven by `--ease-out` / `--ease-spring` and `--dur-*` tokens (all collapse to 0 under `prefers-reduced-motion`): sliding pill in `Segmented`, chevron rotation in the tree and hunks, fade-up for empty states / threads, drawer slide-in, modal pop, shimmer skeleton while the tree loads.
 - **Hover states**: subtle background shifts (`--bg-subtle` on rows/buttons), never color inversion or scale changes.
 - **Press states**: slightly darker shade of the hover background, no shrink/scale.
@@ -87,7 +87,7 @@ Bundled with the app through `@fontsource-variable/geist`, `@fontsource-variable
 
 ## Logo
 
-The `Logo` component (`src/lib/components/Logo.svelte`) is three lines of text with the middle one marked in red — a line picked out to comment on — on a subtle steel-blue fill, set beside a Geist bold wordmark (`guidelines/brand-wordmark.html`). The red belongs to the mark only: in the working UI red already means a removed line or a destructive action, so comment affordances stay steel blue (`--accent`).
+The `Logo` component (`src/lib/components/Logo.svelte`) is three lines of text with a comment dot in the middle one's gutter — a line picked out to note on, like the gutter commenting in the diff view — in white on a subtle steel-blue fill, set beside a Geist bold wordmark (`guidelines/brand-wordmark.html`).
 
 ## Open questions / next steps
 
