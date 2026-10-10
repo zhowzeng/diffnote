@@ -105,7 +105,7 @@ class CommentQueue {
     if (item) item.text = text;
   }
 
-  // The comment already anchored to this exact range, if there is one. Redline is a
+  // The comment already anchored to this exact range, if there is one. Diffnote is a
   // solo-review tool with one comment per range (docs/decisions/0002), so reopening a
   // commented range edits that comment instead of starting a second one.
   find(repoId: string | null, file: string, anchor: CommentAnchor): QueueItem | null {

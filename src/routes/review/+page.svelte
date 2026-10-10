@@ -274,7 +274,7 @@
   <Modal open={removeTarget !== null} onClose={() => (removeTarget = null)} title="移除 repo？" width={400}>
     {#if removeTarget}
       <p class="modal-text">
-        <strong>{removeTarget.name}</strong> 會從 Redline 的清單移除，資料夾本身不會被刪除，之後可以再加回來。
+        <strong>{removeTarget.name}</strong> 會從 Diffnote 的清單移除，資料夾本身不會被刪除，之後可以再加回來。
       </p>
       <p class="modal-text modal-warning">
         這會一併丟掉 {commentQueue.itemsFor(removeTarget.id).length} 則還沒交出去的 comment。

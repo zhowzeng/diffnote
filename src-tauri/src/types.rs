@@ -119,7 +119,7 @@ pub struct FileDiff {
 #[serde(rename_all = "camelCase")]
 pub struct FileContent {
     pub lines: Vec<String>,
-    /// A file Redline cannot number by line, so File View shows it as such instead of
+    /// A file Diffnote cannot number by line, so File View shows it as such instead of
     /// rendering lossy text no Comment could anchor to.
     pub binary: bool,
 }

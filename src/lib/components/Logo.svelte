@@ -5,7 +5,7 @@
 </script>
 
 <!-- The mark is three lines of text with the middle one marked in red: a line picked out to comment on. -->
-<svg width={size} height={size} viewBox="0 0 32 32" fill="none" role="img" aria-label="Redline">
+<svg width={size} height={size} viewBox="0 0 32 32" fill="none" role="img" aria-label="Diffnote">
   <defs>
     <linearGradient id="g{id}" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
       <stop stop-color="#3f6d9f" />

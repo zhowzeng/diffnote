@@ -1,7 +1,7 @@
 ---
-name: redline-frontend
+name: diffnote-frontend
 description: >
-  Redline's frontend conventions for its Svelte 5 + SvelteKit (Tauri SPA, no server) codebase:
+  Diffnote's frontend conventions for its Svelte 5 + SvelteKit (Tauri SPA, no server) codebase:
   where new code lives (route colocation vs src/lib/), state module structure and naming,
   Svelte 5 rune patterns, and which SvelteKit routing features are off-limits in a static
   Tauri build. Load this before adding or changing any frontend code — new components,
@@ -10,7 +10,7 @@ description: >
   .svelte.ts, src/routes/, src/lib/, "add a route", "new component", "new page".
 ---
 
-# Redline Frontend Conventions
+# Diffnote Frontend Conventions
 
 ## Colocation: where new code lives
 
@@ -124,7 +124,7 @@ use `createSubscriber`.
   so an `if` branch not taken this run drops its dependency until it's taken again.
 - **`$effect.pre`** runs before DOM updates instead of after (rare — autoscroll-style cases).
 - Never wrap effect contents in `if (browser) {...}` — effects don't run server-side anyway,
-  and Redline has no server (see SvelteKit routing below).
+  and Diffnote has no server (see SvelteKit routing below).
 
 ## `$props`
 
@@ -147,9 +147,9 @@ use `createSubscriber`.
 - **Always key `{#each}` blocks over dynamic lists**: `{#each items as item (item.id)}` —
   without a key, Svelte diffs by index and can reuse/misattribute DOM state across reorders.
 
-## SvelteKit routing (Redline runs as a Tauri SPA — no server)
+## SvelteKit routing (Diffnote runs as a Tauri SPA — no server)
 
-Redline uses `adapter-static` with an `index.html` SPA fallback (see `svelte.config.js`) because
+Diffnote uses `adapter-static` with an `index.html` SPA fallback (see `svelte.config.js`) because
 Tauri has no Node.js server to do SSR. This rules out anything that needs a server runtime:
 
 - **Don't add `+page.server.ts`, `+layout.server.ts`, `+server.ts`, or form actions** — there
@@ -157,7 +157,7 @@ Tauri has no Node.js server to do SSR. This rules out anything that needs a serv
   `PUBLIC_`/private `$env/static/private` distinctions and Server-Sent Events likewise don't
   apply here.
 - **Use `+page.ts`/`+layout.ts` (universal load)** when a route needs a `load` function —
-  it runs client-side only in Redline's build.
+  it runs client-side only in Diffnote's build.
 - **Dynamic route params**: `[slug]` (one segment), `[...rest]` (catch-all),
   `[[optional]]` (optional segment).
 - **Navigate with `goto()`** from `$app/navigation` for programmatic client-side navigation.
@@ -170,4 +170,4 @@ Tauri has no Node.js server to do SSR. This rules out anything that needs a serv
 - Fetch via Context7 MCP (`resolve-library-id` → `/sveltejs/svelte`) for anything not covered here.
 - Rune fundamentals partly merged from the community skill
   [splinesreticulating/claude-svelte5-skill](https://github.com/splinesreticulating/claude-svelte5-skill),
-  trimmed to what applies to Redline's Tauri SPA (server-only SvelteKit features removed).
+  trimmed to what applies to Diffnote's Tauri SPA (server-only SvelteKit features removed).

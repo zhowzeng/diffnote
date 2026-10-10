@@ -4,11 +4,11 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%sveltekit.assets%/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Redline</title>
+    <title>Diffnote</title>
     <script>
-      // Paint the saved theme before the first frame so a dark Redline never flashes white.
+      // Paint the saved theme before the first frame so a dark Diffnote never flashes white.
       try {
-        var t = JSON.parse(localStorage.getItem('redline.settings') || '{}').theme;
+        var t = JSON.parse(localStorage.getItem('diffnote.settings') || '{}').theme;
         if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
       } catch (e) {}
     </script>

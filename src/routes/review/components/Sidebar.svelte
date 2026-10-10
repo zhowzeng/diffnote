@@ -103,7 +103,7 @@
         size="sm"
         icon="git-commit-horizontal"
         title="HEAD 沒有指向分支"
-        hint={`目前停在 ${detachedHead}。Redline review 的是已 checkout 的分支，先 checkout 一個分支再回來。`}
+        hint={`目前停在 ${detachedHead}。Diffnote review 的是已 checkout 的分支，先 checkout 一個分支再回來。`}
       />
     {:else if emptyState === "no-diff"}
       <EmptyState size="sm" icon="git-compare" title="此分支沒有變更" hint="切換到有變更的分支，或勾選「顯示所有檔案」瀏覽整個專案。" />

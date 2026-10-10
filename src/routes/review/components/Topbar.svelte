@@ -57,7 +57,7 @@
 <header class="topbar">
   <div class="brand">
     <Logo size={22} />
-    <span class="wordmark">Redline</span>
+    <span class="wordmark">Diffnote</span>
   </div>
   <Dropdown
     icon="folder"
@@ -67,7 +67,7 @@
     onChange={onSelectRepo}
     onAddNew={onAddRepo}
     addNewLabel="Add repo…"
-    optionAction={{ icon: "trash-2", title: "從 Redline 移除（不會刪除資料夾）", onAction: onRemoveRepo }}
+    optionAction={{ icon: "trash-2", title: "從 Diffnote 移除（不會刪除資料夾）", onAction: onRemoveRepo }}
     placeholder="Select repo…"
     width={260}
   />
