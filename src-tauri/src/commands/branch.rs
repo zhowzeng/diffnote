@@ -425,7 +425,7 @@ mod tests {
                 "remote",
                 "add",
                 "origin",
-                "https://github.com/zhowzeng/ziff.git",
+                "https://github.com/zhowzeng/diffnote.git",
             ],
         );
 
