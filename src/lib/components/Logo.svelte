@@ -4,7 +4,7 @@
   let id = $props.id();
 </script>
 
-<!-- The mark is a Z cut from a diff: a short add bar on top, a remove bar below, joined by the stroke between them. -->
+<!-- The mark is three lines of text with the middle one marked in red: a line picked out to comment on. -->
 <svg width={size} height={size} viewBox="0 0 32 32" fill="none" role="img" aria-label="Redline">
   <defs>
     <linearGradient id="g{id}" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
@@ -14,5 +14,6 @@
   </defs>
   <rect width="32" height="32" rx="8" fill="url(#g{id})" />
   <rect x="0.5" y="0.5" width="31" height="31" rx="8.5" stroke="rgba(255,255,255,.28)" />
-  <path d="M9.5 10.5h13l-13 11h13" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+  <rect x="6" y="12.5" width="20" height="7" rx="2" fill="#ff5d5d" />
+  <path d="M9 9h14M9 16h12M9 23h9" stroke="#fff" stroke-width="2.4" stroke-linecap="round" />
 </svg>

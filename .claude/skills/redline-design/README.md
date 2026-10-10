@@ -66,7 +66,7 @@ Single source of truth: `src/lib/styles/tokens/{colors,typography,spacing}.css` 
 - **Palette**: calm and steady. Cool slate neutrals on a lightly tinted canvas with white cards in light; deep blue-black in dark (Settings → Theme: System / Light / Dark; tokens redefined under `:root[data-theme="dark"]` and the OS preference in `colors.css`). One restrained brand accent, steel blue (`--accent`), used for primary actions, the active file row, the branch pill, comment affordances and focus rings. No gradients or glows in the working UI. Diff add/remove stay green/red. Components must use semantic tokens (`--bg-raised`, `--bg-active`, `--on-emphasis`, `--text-*`), never raw `--gray-*`/hex, so both themes work.
 - **Type**: **Geist** for UI, **Geist Mono** for code, **Instrument Serif** (display) for the Welcome headline only. All three are bundled via `@fontsource` — no network needed at runtime; CJK falls through to the OS font.
 - **Spacing**: 4px base unit, scale at 4/8/12/16/20/24/32/48/64.
-- **Backgrounds**: flat and functional in the working UI. The first-run `Welcome` screen is just as quiet: serif headline, one button, a static mini diff. The Z `Logo` mark is a subtle steel-blue fill.
+- **Backgrounds**: flat and functional in the working UI. The first-run `Welcome` screen is just as quiet: serif headline, one button, a static mini diff. The `Logo` mark is a subtle steel-blue fill with one red highlight.
 - **Animation**: restrained and purposeful, driven by `--ease-out` / `--ease-spring` and `--dur-*` tokens (all collapse to 0 under `prefers-reduced-motion`): sliding pill in `Segmented`, chevron rotation in the tree and hunks, fade-up for empty states / threads, drawer slide-in, modal pop, shimmer skeleton while the tree loads.
 - **Hover states**: subtle background shifts (`--bg-subtle` on rows/buttons), never color inversion or scale changes.
 - **Press states**: slightly darker shade of the hover background, no shrink/scale.
@@ -87,13 +87,13 @@ Bundled with the app through `@fontsource-variable/geist`, `@fontsource-variable
 
 ## Logo
 
-The `Logo` component (`src/lib/components/Logo.svelte`) is a Z built from a diff — two bars joined by a stroke — on a subtle steel-blue fill, set beside a Geist bold wordmark (`guidelines/brand-wordmark.html`). It is a designed placeholder, not final brand art.
+The `Logo` component (`src/lib/components/Logo.svelte`) is three lines of text with the middle one marked in red — a line picked out to comment on — on a subtle steel-blue fill, set beside a Geist bold wordmark (`guidelines/brand-wordmark.html`). The red belongs to the mark only: in the working UI red already means a removed line or a destructive action, so comment affordances stay steel blue (`--accent`).
 
 ## Open questions / next steps
 
 Only genuine design questions live here — things that need a person to decide or an example to point to. Implementation-only follow-ups (add a library, wire up real state) have been moved out: they don't need another pass through this design system, and listing them here just clutters the one list that's supposed to say what still needs design input.
 
-1. Final brand assets: the **logo** above is a designed placeholder, and the steel-blue accent is the owner's approved direction but not yet a formal brand spec.
+1. Final brand assets: the **logo** above is the owner's chosen mark, and the steel-blue accent is the owner's approved direction but not yet a formal brand spec.
 2. Confirmation of tone/voice guidelines — there's now a real body of applied copy to point to (`SettingsModal`, the empty states, comment threads), all following the same terse dev-to-dev voice, but nobody's signed off that it's actually right for Redline.
 
 **Resolved (kept for history, not action items):** additional screens — PR list/inbox (ruled out of scope for v1: local repos/diffs only), settings, empty states, the copy-to-agent flow (turned out to be plain copy-to-clipboard), and the Project dropdown's "add new" entry are all designed and shipped in `src/lib/components/` and `review/+page.svelte`.
