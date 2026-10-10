@@ -93,10 +93,10 @@
     const handedOff = commentQueue.takeFor(repoId);
     // The open thread rendered one of those comments; with it gone the thread would
     // linger as an empty reply box, so it closes with the queue. Undo reopens it, but
-    // only if the same file and Diff Mode are still on screen — the range is flat line
-    // indexes into that diff and means nothing against another.
+    // only if the same lines are still on screen — the range is flat line indexes into
+    // them and means nothing against others.
     const reopen = selection.range;
-    const { selectedFile, diffMode } = reviewState;
+    const shown = reviewState.shownVersion;
     selection.close();
     toast(`已複製 ${comments.length} 則 comment，queue 已清空`, {
       variant: "success",
@@ -105,13 +105,7 @@
         label: "復原",
         onclick: () => {
           commentQueue.restore(handedOff);
-          if (
-            reopen &&
-            !selection.range &&
-            reviewState.repoId === repoId &&
-            reviewState.selectedFile === selectedFile &&
-            reviewState.diffMode === diffMode
-          ) {
+          if (reopen && !selection.range && reviewState.shownVersion === shown) {
             selection.openAt(reopen.lo, reopen.hi);
           }
         },
@@ -137,12 +131,6 @@
     toast("已複製這則評論", { variant: "success" });
   }
 
-  // Anything that replaces the diff on screen drops the selection with it: the lines it
-  // named are no longer the lines on screen.
-  function addRepo() {
-    selection.close();
-    reviewState.addRepo();
-  }
   // Removing a Repo discards its Comment Queue (docs/decisions/0009), so it asks first
   // — but only when there is something to lose.
   function requestRemoveRepo(id: string) {
@@ -156,32 +144,29 @@
   }
   function removeRepo(id: string) {
     removeTarget = null;
-    selection.close();
     reviewState.removeRepo(id);
   }
+  // Nothing here closes the comment selection: it drops itself once the lines on screen
+  // are replaced (selection.svelte.ts), which a Refresh that re-reads the same lines
+  // doesn't do.
+  function addRepo() {
+    reviewState.addRepo();
+  }
   function selectRepo(id: string) {
-    selection.close();
     reviewState.selectRepo(id);
   }
   function setBaseBranch(name: string) {
-    selection.close();
     reviewState.setBaseBranch(name);
   }
   function setDiffMode(mode: string) {
-    selection.close();
     reviewState.setDiffMode(mode as DiffMode);
   }
   function selectFile(path: string) {
-    selection.close();
     reviewState.selectFile(path);
   }
-  // Refresh keeps the reviewer on their file, but the diff under them is re-read, so an
-  // open selection still has to go — the lines it named are not the lines coming back.
-  //
-  // The queue is re-checked against the re-read files as well: a comment whose lines
-  // moved would otherwise keep marking the lines it used to be on (docs/decisions/0013).
+  // The queue is re-checked against the re-read files: a comment whose lines moved would
+  // otherwise keep marking the lines it used to be on (docs/decisions/0013).
   async function refresh() {
-    selection.close();
     await reviewState.refresh();
     const repoId = reviewState.repoId;
     if (repoId) await resolveAgainstWorktree(repoId, commentQueue.itemsFor(repoId));
