@@ -5,4 +5,4 @@ Neither the [[Comment Queue]] nor app Settings gets a Rust command or disk-backe
 ## Considered Options
 
 - **Backend-persisted Comment Queue** (a Rust command + on-disk file): rejected — adds IPC surface and a storage format decision, and the need that would justify them was looked for in use and isn't there. A queue that outlives the app also outlives the lines it points at: comments anchor to worktree line numbers (ADR 0010), and the CLI agent the queue exists to feed is what rewrites those lines — so persistence would mostly keep stale anchors alive.
-- **Backend-persisted Settings** (e.g. `~/.config/redline/settings.json`): rejected for now — `localStorage` already covers cross-restart persistence for free; revisit only if settings need to be read outside the webview (e.g. by a CLI companion).
+- **Backend-persisted Settings** (e.g. `~/.config/diffnote/settings.json`): rejected for now — `localStorage` already covers cross-restart persistence for free; revisit only if settings need to be read outside the webview (e.g. by a CLI companion).

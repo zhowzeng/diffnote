@@ -46,7 +46,7 @@ fn rewrites() -> gix::diff::Rewrites {
 
 /// index vs worktree. Untracked files count as changes: a file the reviewer just wrote
 /// is usually the first thing they want to look at, and `git diff`'s habit of hiding it
-/// would make Redline look broken.
+/// would make Diffnote look broken.
 fn unstaged(git: &gix::Repository) -> Result<Vec<ChangedFile>, Error> {
     let root = git
         .workdir()
@@ -286,7 +286,7 @@ fn branch(git: &gix::Repository, spec: &DiffSpec) -> Result<Vec<ChangedFile>, Er
         };
         let full = root.join(&path);
         // `symlink_metadata` rather than `exists`, so a symlink still counts as present
-        // when it points at nothing. A directory here is a submodule, which Redline can no
+        // when it points at nothing. A directory here is a submodule, which Diffnote can no
         // more show a diff for than the tree-to-tree walk could.
         let new = match std::fs::symlink_metadata(&full) {
             Ok(meta) if !meta.is_dir() => Side::Worktree(full),
@@ -348,7 +348,7 @@ mod tests {
     }
 
     /// `git diff` hides untracked files. A review tool that hid the file the reviewer
-    /// just wrote would look broken, so Redline lists it.
+    /// just wrote would look broken, so Diffnote lists it.
     #[test]
     fn unstaged_lists_an_untracked_file() {
         let dir = tempfile::tempdir().expect("tempdir");

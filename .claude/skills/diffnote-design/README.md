@@ -1,8 +1,8 @@
-# Redline Design System
+# Diffnote Design System
 
 ## Company & product
 
-Redline is a desktop app for code review. It connects to GitHub, syncs pull requests and review comments, and gives a clean, friendly diff-reading interface — so reviewers can take notes quickly while reading code, organize their feedback, and copy review context to CLI coding agents (Codex, Claude, etc.).
+Diffnote is a desktop app for code review. It connects to GitHub, syncs pull requests and review comments, and gives a clean, friendly diff-reading interface — so reviewers can take notes quickly while reading code, organize their feedback, and copy review context to CLI coding agents (Codex, Claude, etc.).
 
 **Origin:** the system began as a GitHub-inspired first pass built from one screenshot. It has since been redesigned freely, with the owner's approval, into the calm, steady look described below; GitHub's tokens are no longer a constraint. The owner's stated direction: stable and composed, not flashy.
 
@@ -44,7 +44,7 @@ Settings and empty states: `src/lib/components/SettingsModal.svelte` (Modal + Se
 - `guidelines/colors-*.html` — neutral ramp, accent, semantic, diff colors
 - `guidelines/type-*.html` — sans and mono type scales
 - `guidelines/spacing-scale.html`, `guidelines/radius-elevation.html`
-- `guidelines/brand-wordmark.html` — the type-only "Redline" wordmark placeholder
+- `guidelines/brand-wordmark.html` — the type-only "Diffnote" wordmark placeholder
 
 Open any of these directly in a browser to preview a token category — they link straight to the app's real tokens (`../../../../src/lib/styles/tokens/index.css`), not a local copy.
 
@@ -66,7 +66,7 @@ Single source of truth: `src/lib/styles/tokens/{colors,typography,spacing}.css` 
 - **Palette**: calm and steady. Cool slate neutrals on a lightly tinted canvas with white cards in light; deep blue-black in dark (Settings → Theme: System / Light / Dark; tokens redefined under `:root[data-theme="dark"]` and the OS preference in `colors.css`). One restrained brand accent, steel blue (`--accent`), used for primary actions, the active file row, the branch pill, comment affordances and focus rings. No gradients or glows in the working UI. Diff add/remove stay green/red. Components must use semantic tokens (`--bg-raised`, `--bg-active`, `--on-emphasis`, `--text-*`), never raw `--gray-*`/hex, so both themes work.
 - **Type**: **Geist** for UI, **Geist Mono** for code, **Instrument Serif** (display) for the Welcome headline only. All three are bundled via `@fontsource` — no network needed at runtime; CJK falls through to the OS font.
 - **Spacing**: 4px base unit, scale at 4/8/12/16/20/24/32/48/64.
-- **Backgrounds**: flat and functional in the working UI. The first-run `Welcome` screen is just as quiet: serif headline, one button, a static mini diff. The `Logo` mark is a subtle steel-blue fill with one red highlight.
+- **Backgrounds**: flat and functional in the working UI. The first-run `Welcome` screen is just as quiet: serif headline, one button, a static mini diff. The `Logo` mark is a subtle steel-blue fill.
 - **Animation**: restrained and purposeful, driven by `--ease-out` / `--ease-spring` and `--dur-*` tokens (all collapse to 0 under `prefers-reduced-motion`): sliding pill in `Segmented`, chevron rotation in the tree and hunks, fade-up for empty states / threads, drawer slide-in, modal pop, shimmer skeleton while the tree loads.
 - **Hover states**: subtle background shifts (`--bg-subtle` on rows/buttons), never color inversion or scale changes.
 - **Press states**: slightly darker shade of the hover background, no shrink/scale.
@@ -79,7 +79,7 @@ Single source of truth: `src/lib/styles/tokens/{colors,typography,spacing}.css` 
 
 ## ICONOGRAPHY
 
-Small monochrome line icons (chevrons, copy, emoji-reaction) — a stroke-based icon set. Uses **Lucide** (lucide.dev, MIT-licensed). In this repo, use the `lucide-svelte` package via `src/lib/components/Icon.svelte`. This is a **substitution, flagged for the user**: if Redline's real app uses a different icon set, swap it out.
+Small monochrome line icons (chevrons, copy, emoji-reaction) — a stroke-based icon set. Uses **Lucide** (lucide.dev, MIT-licensed). In this repo, use the `lucide-svelte` package via `src/lib/components/Icon.svelte`. This is a **substitution, flagged for the user**: if Diffnote's real app uses a different icon set, swap it out.
 
 ## Fonts
 
@@ -87,14 +87,14 @@ Bundled with the app through `@fontsource-variable/geist`, `@fontsource-variable
 
 ## Logo
 
-The `Logo` component (`src/lib/components/Logo.svelte`) is three lines of text with the middle one marked in red — a line picked out to comment on — on a subtle steel-blue fill, set beside a Geist bold wordmark (`guidelines/brand-wordmark.html`). The red belongs to the mark only: in the working UI red already means a removed line or a destructive action, so comment affordances stay steel blue (`--accent`).
+The `Logo` component (`src/lib/components/Logo.svelte`) is three lines of text with a comment dot in the middle one's gutter — a line picked out to note on, like the gutter commenting in the diff view — in white on a subtle steel-blue fill, set beside a Geist bold wordmark (`guidelines/brand-wordmark.html`).
 
 ## Open questions / next steps
 
 Only genuine design questions live here — things that need a person to decide or an example to point to. Implementation-only follow-ups (add a library, wire up real state) have been moved out: they don't need another pass through this design system, and listing them here just clutters the one list that's supposed to say what still needs design input.
 
 1. Final brand assets: the **logo** above is the owner's chosen mark, and the steel-blue accent is the owner's approved direction but not yet a formal brand spec.
-2. Confirmation of tone/voice guidelines — there's now a real body of applied copy to point to (`SettingsModal`, the empty states, comment threads), all following the same terse dev-to-dev voice, but nobody's signed off that it's actually right for Redline.
+2. Confirmation of tone/voice guidelines — there's now a real body of applied copy to point to (`SettingsModal`, the empty states, comment threads), all following the same terse dev-to-dev voice, but nobody's signed off that it's actually right for Diffnote.
 
 **Resolved (kept for history, not action items):** additional screens — PR list/inbox (ruled out of scope for v1: local repos/diffs only), settings, empty states, the copy-to-agent flow (turned out to be plain copy-to-clipboard), and the Project dropdown's "add new" entry are all designed and shipped in `src/lib/components/` and `review/+page.svelte`.
 

@@ -3,13 +3,13 @@
 **Theme.** Light, Dark or System is one more field in the settings kept in the WebView's
 localStorage (ADR 0006); no Rust command is involved. `colors.css` defines every colour twice, under
 `:root` and `:root[data-theme="dark"]`, plus the OS preference while the setting is "system" (no
-attribute). `app.html` applies the saved theme before first paint so a dark Redline never flashes white.
+attribute). `app.html` applies the saved theme before first paint so a dark Diffnote never flashes white.
 Components use semantic tokens (`--bg-raised`, `--on-emphasis`, `--text-*`), never raw `--gray-*` or
 hex, so a theme is a second set of variables and nothing else. Syntax colours are `var(--syntax-*)`
 (ADR 0017), which is why the dark theme needed no second tokenization.
 
 **Fonts.** Geist, Geist Mono and Instrument Serif are bundled through `@fontsource` packages and
-imported in `tokens/typography.css`, rather than loaded from Google Fonts. Redline is a desktop app that is
+imported in `tokens/typography.css`, rather than loaded from Google Fonts. Diffnote is a desktop app that is
 often used on a plane or behind a proxy; a font that depends on the network flashes or falls back
 there. Geist has no CJK glyphs, so Traditional Chinese uses the platform font.
 

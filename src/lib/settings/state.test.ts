@@ -5,7 +5,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const STORAGE_KEY = 'redline.settings';
+const STORAGE_KEY = 'diffnote.settings';
 
 const DEFAULTS = {
   theme: 'system',

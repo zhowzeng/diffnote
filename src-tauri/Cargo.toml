@@ -1,5 +1,5 @@
 [package]
-name = "redline"
+name = "diffnote"
 version = "0.1.0"
 description = "A Tauri App"
 authors = ["you"]
@@ -11,7 +11,7 @@ edition = "2021"
 # The `_lib` suffix may seem redundant but it is necessary
 # to make the lib name unique and wouldn't conflict with the bin name.
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
-name = "redline_lib"
+name = "diffnote_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
@@ -28,7 +28,7 @@ tauri-plugin-dialog = "2"
 tauri-plugin-window-state = "2"
 # Fetch talks to a remote over ssh only, on purpose (ADR 0011). Adding an HTTP
 # transport back also means suppressing the credential helper's terminal prompt again
-# -- Redline has nowhere to answer one, and gix will happily open it.
+# -- Diffnote has nowhere to answer one, and gix will happily open it.
 gix = { version = "0.87", default-features = false, features = [
     "sha1",
     "status",

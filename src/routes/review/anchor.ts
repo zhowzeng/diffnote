@@ -1,5 +1,5 @@
 // Checking a queued Comment against the worktree before it is handed to a CLI agent
-// (docs/decisions/0013). Redline is read-only over the Repo (docs/decisions/0003) and
+// (docs/decisions/0013). Diffnote is read-only over the Repo (docs/decisions/0003) and
 // nothing tells it when a file changes, so a Comment's line numbers can be wrong by
 // the time the hand-off happens: another agent, the reviewer's own editor, or the
 // agent acting on an earlier hand-off may have moved or rewritten those lines.
@@ -37,7 +37,7 @@ export function resolveAnchor(
   let found = -1;
   for (let at = 0; at + anchorText.length <= lines.length; at++) {
     if (!matchesAt(lines, at, anchorText)) continue;
-    // Two places it could be is no better than none: Redline cannot tell which one the
+    // Two places it could be is no better than none: Diffnote cannot tell which one the
     // reviewer meant, so it hands off the quote rather than guessing.
     if (found !== -1) return { kind: 'orphaned' };
     found = at;

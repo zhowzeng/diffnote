@@ -1,6 +1,6 @@
 ---
-name: redline-design
-description: Use this skill to generate well-branded interfaces and assets for Redline, either for production or throwaway prototypes/mocks/etc. Contains essential design guidelines, colors, type, fonts, assets, and UI kit components for prototyping.
+name: diffnote-design
+description: Use this skill to generate well-branded interfaces and assets for Diffnote, either for production or throwaway prototypes/mocks/etc. Contains essential design guidelines, colors, type, fonts, assets, and UI kit components for prototyping.
 user-invocable: true
 ---
 

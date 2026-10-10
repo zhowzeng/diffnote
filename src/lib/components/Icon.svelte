@@ -1,5 +1,5 @@
 <script module>
-  // Only the icons Redline draws. Importing lucide's whole `icons` table and looking a name
+  // Only the icons Diffnote draws. Importing lucide's whole `icons` table and looking a name
   // up at runtime bundled every icon it has (6.4 MB), since the bundler can't tell which
   // names a string will be. A new icon goes here first; `IconName` makes svelte-check
   // reject any name that isn't.

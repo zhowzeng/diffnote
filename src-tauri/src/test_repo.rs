@@ -8,18 +8,18 @@ pub fn git(dir: &std::path::Path, date: &str, args: &[&str]) {
     git_stdout(dir, date, args);
 }
 
-/// What the git CLI printed -- for the tests that hold Redline's own diff up against it.
+/// What the git CLI printed -- for the tests that hold Diffnote's own diff up against it.
 pub fn git_stdout(dir: &std::path::Path, date: &str, args: &[&str]) -> String {
     let out = std::process::Command::new("git")
         .args(args)
         .current_dir(dir)
         .env("GIT_CONFIG_GLOBAL", "/dev/null")
         .env("GIT_CONFIG_SYSTEM", "/dev/null")
-        .env("GIT_AUTHOR_NAME", "Redline Test")
-        .env("GIT_AUTHOR_EMAIL", "test@redline.invalid")
+        .env("GIT_AUTHOR_NAME", "Diffnote Test")
+        .env("GIT_AUTHOR_EMAIL", "test@diffnote.invalid")
         .env("GIT_AUTHOR_DATE", date)
-        .env("GIT_COMMITTER_NAME", "Redline Test")
-        .env("GIT_COMMITTER_EMAIL", "test@redline.invalid")
+        .env("GIT_COMMITTER_NAME", "Diffnote Test")
+        .env("GIT_COMMITTER_EMAIL", "test@diffnote.invalid")
         .env("GIT_COMMITTER_DATE", date)
         .output()
         .expect("run git");

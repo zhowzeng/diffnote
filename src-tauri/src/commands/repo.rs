@@ -23,7 +23,7 @@ pub fn add_repo(app: tauri::AppHandle, path: String) -> Result<Repo, String> {
     Ok(repo)
 }
 
-/// Drops the Repo from the reviewer's list. This only edits Redline's own list — the
+/// Drops the Repo from the reviewer's list. This only edits Diffnote's own list — the
 /// folder on disk is left alone.
 #[tauri::command]
 pub fn remove_repo(app: tauri::AppHandle, id: String) -> Result<(), String> {
