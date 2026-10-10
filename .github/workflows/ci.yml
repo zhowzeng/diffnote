@@ -13,7 +13,7 @@ concurrency:
 jobs:
   rust:
     name: Rust (${{ matrix.platform }})
-    # Both platforms Ziff is meant to run on. The Repo reads that differ between them --
+    # Both platforms Redline is meant to run on. The Repo reads that differ between them --
     # path canonicalization, and the system `ssh` a Fetch shells out to -- are exactly
     # what a Linux-only run cannot speak for.
     strategy:

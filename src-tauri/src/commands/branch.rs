@@ -101,9 +101,9 @@ fn count_commits(git: &gix::Repository, tip: gix::ObjectId, hidden: gix::ObjectI
     Some(count)
 }
 
-/// How long a `Fetch` may run before Ziff gives up on it.
+/// How long a `Fetch` may run before Redline gives up on it.
 ///
-/// ADR 0003 accepted that fetching goes through the system `ssh` binary, which Ziff does
+/// ADR 0003 accepted that fetching goes through the system `ssh` binary, which Redline does
 /// not control: it can sit waiting on a passphrase or a host-key prompt this app has no
 /// way to answer. A spinner that never stops is the worst answer to give a reviewer, so
 /// the fetch is abandoned instead.
@@ -142,7 +142,7 @@ fn fetch_within_timeout(root: PathBuf) -> FetchResult {
                 success: false,
                 message: format!(
                     "Gave up after {}s. The remote may be unreachable, or it asked for \
-                     credentials Ziff cannot prompt for.",
+                     credentials Redline cannot prompt for.",
                     FETCH_TIMEOUT.as_secs()
                 ),
             }
@@ -184,11 +184,11 @@ fn fetch_from_remote(root: &Path, should_interrupt: &AtomicBool) -> Result<Strin
     let (url, _) = remote
         .sanitized_url_and_version(gix::remote::Direction::Fetch)
         .map_err(|e| explain("Cannot tell where to fetch from", &e))?;
-    // ADR 0011: Ziff is built without an HTTP transport, so say that in the reviewer's
+    // ADR 0011: Redline is built without an HTTP transport, so say that in the reviewer's
     // terms. gix's own answer names cargo features, which is no help from inside the app.
     if matches!(url.scheme, gix::url::Scheme::Https | gix::url::Scheme::Http) {
         return Err(format!(
-            "Ziff fetches over ssh only, and this repo's remote is {url}. Pointing it at \
+            "Redline fetches over ssh only, and this repo's remote is {url}. Pointing it at \
              the ssh form of the same repo (git remote set-url) makes Fetch work."
         ));
     }
@@ -431,7 +431,7 @@ mod tests {
 
         let message = fetch(dir.path()).expect_err("should refuse");
         assert!(
-            message.starts_with("Ziff fetches over ssh only,"),
+            message.starts_with("Redline fetches over ssh only,"),
             "got: {message}"
         );
     }

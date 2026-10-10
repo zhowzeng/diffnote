@@ -1,6 +1,6 @@
 # A Comment carries the lines it was written against
 
-Every [[Comment]] keeps its [[Anchor Text]] — those lines as the reviewer saw them, not a later re-read of the worktree — and Ziff checks it against the worktree before handing the Comment to a CLI agent, because the worktree changes under a queued Comment whenever anything edits it: another agent in another window, the reviewer's own editor, or the agent acting on an earlier hand-off. When the Anchor Text has only moved, Ziff [[Re-anchor]]s the Comment to where it now sits and hands off `path:L12` as before; when it is gone, the Comment is [[Orphaned]] and hands off as a quote of those lines, saying why the number was dropped, rather than a number that would resolve to unrelated code.
+Every [[Comment]] keeps its [[Anchor Text]] — those lines as the reviewer saw them, not a later re-read of the worktree — and Redline checks it against the worktree before handing the Comment to a CLI agent, because the worktree changes under a queued Comment whenever anything edits it: another agent in another window, the reviewer's own editor, or the agent acting on an earlier hand-off. When the Anchor Text has only moved, Redline [[Re-anchor]]s the Comment to where it now sits and hands off `path:L12` as before; when it is gone, the Comment is [[Orphaned]] and hands off as a quote of those lines, saying why the number was dropped, rather than a number that would resolve to unrelated code.
 
 ## Consequences
 
@@ -12,4 +12,4 @@ Every [[Comment]] keeps its [[Anchor Text]] — those lines as the reviewer saw 
 
 - **Mark Orphaned Comments in the Comment Queue and hand them off anyway**: rejected — this is ADR 0010's "warn instead of withhold" again, and the badge stays where the agent never sees it.
 - **Drop Orphaned Comments from the hand-off entirely**: rejected — the reviewer wrote something worth saying, and a quote the agent can search for is worth more than a Comment it never receives.
-- **Take the Anchor Text from the worktree rather than from what the reviewer saw**: rejected — in `Staged`, where the two differ, Ziff would be confirming a line number against content the reviewer never looked at.
+- **Take the Anchor Text from the worktree rather than from what the reviewer saw**: rejected — in `Staged`, where the two differ, Redline would be confirming a line number against content the reviewer never looked at.

@@ -5,7 +5,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const STORAGE_KEY = 'ziff.settings';
+const STORAGE_KEY = 'redline.settings';
 
 const DEFAULTS = {
   theme: 'system',

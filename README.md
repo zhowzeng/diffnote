@@ -1,6 +1,6 @@
-# Ziff
+# Redline
 
-Ziff is a desktop app for reviewing local git diffs — reading changed files, leaving
+Redline is a desktop app for reviewing local git diffs — reading changed files, leaving
 comments anchored to diff lines, and copying review notes to CLI coding agents.
 
 The review screen is the whole app: pick a local repo in the topbar, pick how the diff is
@@ -24,7 +24,7 @@ Windows, which are the two platforms CI covers.
   `libwebkit2gtk-4.1-dev`, `build-essential`, `curl`, `wget`, `file`, `libxdo-dev`,
   `libssl-dev`, `libayatana-appindicator3-dev`, `librsvg2-dev`, plus `patchelf` for the AppImage
   bundle.
-- `ssh` access to your repos' remotes, if you want Ziff's `Fetch` to work — it is ssh-only
+- `ssh` access to your repos' remotes, if you want Redline's `Fetch` to work — it is ssh-only
   (see ADR 0011).
 
 ## Running it

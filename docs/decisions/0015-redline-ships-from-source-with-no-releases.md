@@ -1,6 +1,6 @@
-# Ziff ships from source, with no releases
+# Redline ships from source, with no releases
 
-Ziff is a tool its author built for their own reviews, and the way to get it is to clone the
+Redline is a tool its author built for their own reviews, and the way to get it is to clone the
 repo and run `bun tauri build`. There is no tag-triggered GitHub Release, no published
 installer, and no version-bump ritual across `package.json`, `tauri.conf.json` and
 `Cargo.toml` — those three stay at `0.1.0` until something actually reads them. The
