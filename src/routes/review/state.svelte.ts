@@ -80,6 +80,16 @@ class ReviewState {
   // another Diff Mode or against another Base Branch is never shown for this one.
   #recent = new Map<string, RecentFile>();
 
+  // Which of those files is on screen, or null for none. Lines on screen are only ever
+  // replaced through #show(), so this is the one place that knows when they are.
+  #shown: RecentFile | null = null;
+
+  // Changes exactly when the lines on screen are replaced by other lines. A comment
+  // selection names line indexes into what was on screen when it was made, so it holds
+  // on to this and counts as gone once it moves on (selection.svelte.ts). Re-reading a
+  // file that hasn't changed leaves it where it is.
+  shownVersion = $state(0);
+
   repo = $derived(this.repos.find((r) => r.id === this.repoId) ?? null);
 
   // Where the selected file was before it was moved, so the file header can say so
@@ -257,10 +267,6 @@ class ReviewState {
     const view = node?.type === 'file' && node.changes ? 'diff' : 'file';
     this.selectedFile = path;
     this.selectedView = view;
-    this.diffHunks = [];
-    this.diffBinary = false;
-    this.fileLines = [];
-    this.fileBinary = false;
     this.#clearTokens();
     const key = JSON.stringify([spec, view, path]);
     if (view === 'diff') await this.#loadDiff(spec, path, key, seq);
@@ -273,11 +279,8 @@ class ReviewState {
   async #loadDiff(spec: DiffSpec, path: string, key: string, seq: number) {
     const recent = this.#recent.get(key);
     const shown = recent?.view === 'diff' ? recent : undefined;
-    if (shown) {
-      this.diffHunks = shown.diff.hunks;
-      this.diffBinary = shown.diff.binary;
-      if (shown.tokens) [this.oldTokens, this.newTokens] = shown.tokens;
-    }
+    this.#show(shown ?? null);
+    if (shown?.tokens) [this.oldTokens, this.newTokens] = shown.tokens;
     this.loadingDiff = !shown;
     try {
       const diff = await getFileDiff(spec, path);
@@ -289,16 +292,14 @@ class ReviewState {
       }
       const entry: RecentFile = { view: 'diff', diff };
       this.#remember(key, entry);
-      this.diffHunks = diff.hunks;
-      this.diffBinary = diff.binary;
+      this.#show(entry);
       this.#clearTokens();
       void this.#highlightDiff(path, entry, seq);
     } catch (e) {
       this.#recent.delete(key);
       if (seq !== this.#diffSeq) return;
       // What was kept is no longer known to be what's on disk.
-      this.diffHunks = [];
-      this.diffBinary = false;
+      this.#show(null);
       this.#clearTokens();
       toast(`載入 diff 失敗：${e}`, { variant: 'danger' });
     } finally {
@@ -309,11 +310,8 @@ class ReviewState {
   async #loadFileContent(repoId: string, path: string, key: string, seq: number) {
     const recent = this.#recent.get(key);
     const shown = recent?.view === 'file' ? recent : undefined;
-    if (shown) {
-      this.fileLines = shown.content.lines;
-      this.fileBinary = shown.content.binary;
-      if (shown.tokens !== undefined) this.fileTokens = shown.tokens;
-    }
+    this.#show(shown ?? null);
+    if (shown && shown.tokens !== undefined) this.fileTokens = shown.tokens;
     this.loadingFile = !shown;
     try {
       const content = await getFileContent(repoId, path);
@@ -325,20 +323,30 @@ class ReviewState {
       }
       const entry: RecentFile = { view: 'file', content };
       this.#remember(key, entry);
-      this.fileLines = content.lines;
-      this.fileBinary = content.binary;
+      this.#show(entry);
       this.#clearTokens();
       void this.#highlightFile(path, entry, seq);
     } catch (e) {
       this.#recent.delete(key);
       if (seq !== this.#diffSeq) return;
-      this.fileLines = [];
-      this.fileBinary = false;
+      this.#show(null);
       this.#clearTokens();
       toast(`載入檔案內容失敗：${e}`, { variant: 'danger' });
     } finally {
       if (seq === this.#diffSeq) this.loadingFile = false;
     }
+  }
+
+  // Puts `entry`'s lines on screen, or none. Showing what is already there — a Refresh
+  // re-opening the file it was on — is not a replacement, so shownVersion stays put.
+  #show(entry: RecentFile | null) {
+    if (entry === this.#shown) return;
+    this.#shown = entry;
+    this.shownVersion++;
+    this.diffHunks = entry?.view === 'diff' ? entry.diff.hunks : [];
+    this.diffBinary = entry?.view === 'diff' ? entry.diff.binary : false;
+    this.fileLines = entry?.view === 'file' ? entry.content.lines : [];
+    this.fileBinary = entry?.view === 'file' ? entry.content.binary : false;
   }
 
   #remember(key: string, entry: RecentFile) {
@@ -387,10 +395,7 @@ class ReviewState {
   #clearSelection() {
     this.selectedFile = null;
     this.selectedView = null;
-    this.diffHunks = [];
-    this.diffBinary = false;
-    this.fileLines = [];
-    this.fileBinary = false;
+    this.#show(null);
     this.#clearTokens();
   }
 

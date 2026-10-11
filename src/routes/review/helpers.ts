@@ -1,4 +1,4 @@
-import type { Branch, DiffHunk, DiffLine, TreeNode } from './types';
+import type { Branch, TreeNode } from './types';
 
 export function pruneToChanged(nodes: TreeNode[]): TreeNode[] {
   return nodes.reduce<TreeNode[]>((acc, n) => {
@@ -73,68 +73,10 @@ export function rangeLabel(lineStart: number, lineEnd?: number) {
   return lineEnd && lineEnd !== lineStart ? `L${lineStart}–L${lineEnd}` : `L${lineStart}`;
 }
 
-// A comment in the shape it is handed to a CLI agent: the line numbers already checked
-// against the worktree (see handoff.ts), so the formatter below only has to print them.
-export interface AgentComment {
-  file: string;
-  lineStart: number;
-  lineEnd?: number;
-  text: string;
-  // Set when the Anchor Text is no longer in the worktree (docs/decisions/0013). The
-  // hand-off then quotes those lines instead of a number that names other code now,
-  // and says why the number was dropped. `staged` picks the reason: a comment written
-  // against the index has a next step the agent can act on (`git show :path`).
-  orphaned?: { anchorText: string[]; staged: boolean };
-}
-
-// The text handed to a CLI coding agent, for both the Comment Queue and Copy Now
-// (docs/decisions/0001) — one formatter so the two can't drift apart.
-//
-// Deliberately ASCII-only (not rangeLabel above, which uses an en dash) — this text is
-// copied straight into a CLI agent's prompt.
-export function formatForAgent(comment: AgentComment) {
-  const range =
-    comment.lineEnd && comment.lineEnd !== comment.lineStart
-      ? `L${comment.lineStart}-L${comment.lineEnd}`
-      : `L${comment.lineStart}`;
-  if (!comment.orphaned) return `${comment.file}:${range}\n${comment.text}`;
-  const reason = comment.orphaned.staged
-    ? `commented at ${range} as staged; the working tree has since changed`
-    : `commented at ${range}; that code is no longer in the file`;
-  // The comment's own text can run to several lines, so the quoted code is prefixed to
-  // keep the agent from reading the reviewer's words as part of it.
-  const quote = comment.orphaned.anchorText.map((line) => `> ${line}`).join('\n');
-  return `${comment.file} (${reason})\n${quote}\n${comment.text}`;
-}
-
-// Every comment in the Comment Queue, as one block for the CLI agent. The prefix goes
-// to the agent once, ahead of every comment, rather than per comment.
-export function formatQueueForAgent(items: AgentComment[], prefix = '') {
-  const comments = items.map(formatForAgent).join('\n\n');
-  return prefix ? `${prefix}\n\n${comments}` : comments;
-}
-
 // Comments now outlive the thread that created them, so they show the wall-clock time
 // they were written rather than a relative label that would silently go stale.
 export function formatTime(ts: number) {
   return new Date(ts).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
-}
-
-// A line with its position among all lines of the file being reviewed (flattened
-// across hunks), used to anchor comment threads and gutter drag-selection.
-export type IndexedLine = DiffLine & { idx: number };
-
-// Same, but keeping the owning hunk: line numbers are only contiguous within a
-// hunk, so a selection may not run across a hunk boundary.
-export type FlatLine = { line: DiffLine; idx: number; hunk: number };
-
-export function flattenHunks(hunks: DiffHunk[]): FlatLine[] {
-  const out: FlatLine[] = [];
-  let idx = 0;
-  hunks.forEach((h, hunk) => {
-    for (const line of h.lines) out.push({ line, idx: idx++, hunk });
-  });
-  return out;
 }
 
 // Where a comment is anchored. `side` records which numbering space
@@ -145,26 +87,6 @@ export interface CommentAnchor {
   lineStart: number;
   lineEnd?: number;
   side: 'new' | 'file';
-}
-
-// Line numbers for a selected idx range, always read off the new side. A selection
-// can sweep over del lines, but it can't start on one (DiffLine withholds the
-// affordance there), so there is always a new-side number to anchor to and the range
-// can never come out reversed.
-export function lineRange(lines: FlatLine[], lo: number, hi: number): CommentAnchor {
-  const nos = lines
-    .slice(lo, hi + 1)
-    .map((f) => f.line.newNo)
-    .filter((n): n is number => n !== null);
-  const lineStart = nos[0] ?? 0;
-  const lineEnd = nos[nos.length - 1] ?? lineStart;
-  return { lineStart, lineEnd: lineEnd === lineStart ? undefined : lineEnd, side: 'new' };
-}
-
-// File View shows the whole worktree file, so its lines are numbered from 1 with no
-// second numbering space to disambiguate — `lo`/`hi` are line indexes, not diff idxs.
-export function fileLineRange(lo: number, hi: number): CommentAnchor {
-  return { lineStart: lo + 1, lineEnd: hi === lo ? undefined : hi + 1, side: 'file' };
 }
 
 // The tree node for `path`, or null when the tree doesn't list that file. A file node
@@ -191,47 +113,6 @@ export function findFileNode(nodes: TreeNode[], path: string): TreeNode | null {
 export function fileAfterReload(nodes: TreeNode[], previous: string | null): string | null {
   if (previous && findFileNode(nodes, previous)) return previous;
   return firstFilePath(pruneToChanged(nodes));
-}
-
-export type SplitSide = { kind: DiffLine['kind']; no: number | null; text: string; idx: number; commentable?: boolean } | null;
-
-// Only the right (new-side) column is commentable: a del line is gone from the
-// worktree, so `path:L12` for it would name a line the CLI agent reads as something
-// else (docs/decisions/0010). Unified view withholds the same affordance there.
-export function pairHunkLines(lines: IndexedLine[]): { left: SplitSide; right: SplitSide }[] {
-  const result: { left: SplitSide; right: SplitSide }[] = [];
-  let i = 0;
-  while (i < lines.length) {
-    const l = lines[i];
-    if (l.kind === 'context') {
-      result.push({
-        left: { kind: 'context', no: l.oldNo, text: l.content, idx: l.idx },
-        right: { kind: 'context', no: l.newNo, text: l.content, idx: l.idx, commentable: true },
-      });
-      i++;
-      continue;
-    }
-    const dels: IndexedLine[] = [];
-    while (i < lines.length && lines[i].kind === 'del') {
-      dels.push(lines[i]);
-      i++;
-    }
-    const adds: IndexedLine[] = [];
-    while (i < lines.length && lines[i].kind === 'add') {
-      adds.push(lines[i]);
-      i++;
-    }
-    const max = Math.max(dels.length, adds.length);
-    for (let j = 0; j < max; j++) {
-      const d = dels[j];
-      const a = adds[j];
-      result.push({
-        left: d ? { kind: 'del', no: d.oldNo, text: d.content, idx: d.idx } : null,
-        right: a ? { kind: 'add', no: a.newNo, text: a.content, idx: a.idx, commentable: true } : null,
-      });
-    }
-  }
-  return result;
 }
 
 // A run of one line's text, marked when it is part of what changed within the line —
@@ -295,20 +176,5 @@ function segments(tokens: string[], changed: boolean[]): InlineSegment[] {
     if (last && last.changed === mark) last.text += text;
     else out.push({ text, changed: mark });
   });
-  return out;
-}
-
-// The within-line segments of every del/add line that has a counterpart, keyed by idx.
-// Lines pair up the same way Split view puts them side by side (pairHunkLines): the
-// n-th del of a run with the n-th add after it.
-export function inlineSegments(lines: IndexedLine[]): Map<number, InlineSegment[]> {
-  const out = new Map<number, InlineSegment[]>();
-  for (const { left, right } of pairHunkLines(lines)) {
-    if (left?.kind !== 'del' || right?.kind !== 'add') continue;
-    const diff = inlineDiff(left.text, right.text);
-    if (!diff) continue;
-    out.set(left.idx, diff.old);
-    out.set(right.idx, diff.new);
-  }
   return out;
 }

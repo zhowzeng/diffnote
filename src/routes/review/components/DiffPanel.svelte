@@ -10,22 +10,12 @@
   import EmptyState from "$lib/components/EmptyState.svelte";
   import Welcome from "./Welcome.svelte";
   import Segmented from "$lib/components/Segmented.svelte";
-  import { toast } from "$lib/toast/state.svelte";
   import { commentQueue } from "../comment-queue.svelte";
   import { selection } from "../selection.svelte";
   import { nextFileShortcut, nextHunkShortcut, prevFileShortcut, prevHunkShortcut } from "../shortcuts";
-  import {
-    fileLineRange,
-    flattenHunks,
-    formatForAgent,
-    formatTime,
-    inlineSegments,
-    lineRange,
-    pairHunkLines,
-    type FlatLine,
-    type IndexedLine,
-    type InlineSegment,
-  } from "../helpers";
+  import { formatTime } from "../helpers";
+  import { copyNow as copyNowForAgent } from "../handoff";
+  import { diffLines, fileViewLines, type DiffLines, type SplitRow } from "../lines";
   import type { SyntaxToken } from "../highlight";
   import type { ViewMode } from "../state.svelte";
   import type { DiffHunk as DiffHunkData, DiffLine as DiffLineData, DiffMode } from "../types";
@@ -148,44 +138,29 @@
   }
   function gutterEnter(i: number) {
     const start = selection.dragStart;
-    if (start === null) return;
-    // A selection stays inside one hunk: line numbers aren't contiguous across hunk
-    // boundaries, so a range spanning two hunks names lines that aren't in the diff.
-    // File View has no hunks — it's one continuous file — so nothing to stay inside of.
-    if (!isFileView && flatLines[i]?.hunk !== flatLines[start]?.hunk) return;
+    if (start === null || !lines.canExtend(start, i)) return;
     selection.extendDrag(i);
   }
 
-  let flatLines = $derived(flattenHunks(diffHunks));
-  let hunkGroups = $derived.by(() => {
-    const groups = diffHunks.map((h) => ({ header: h.header, lines: [] as FlatLine[] }));
-    for (const f of flatLines) groups[f.hunk].lines.push(f);
-    return groups;
-  });
-  // What changed within each paired del/add line, keyed by idx, for both views.
-  let inline = $derived.by(() => {
-    const out = new Map<number, InlineSegment[]>();
-    for (const g of hunkGroups) {
-      const numbered: IndexedLine[] = g.lines.map((f) => ({ ...f.line, idx: f.idx }));
-      for (const [idx, segs] of inlineSegments(numbered)) out.set(idx, segs);
-    }
-    return out;
-  });
+  // The lines on screen, laid out and anchored by lines.ts: the diff's, or File View's.
+  let diff = $derived(diffLines(diffHunks));
+  let lines = $derived(isFileView ? fileViewLines(fileLines) : diff);
+
   // Which hunks are collapsed, kept against the diff they were collapsed in: loading
-  // another diff replaces `flatLines`, and everything is expanded again with no effect
+  // another diff replaces `diff`, and everything is expanded again with no effect
   // syncing the two. Raw state on purpose — the record is replaced whole on every
   // change, and a reactive proxy would hand back a copy that fails the identity check.
   const NONE_COLLAPSED: ReadonlySet<number> = new Set();
-  let collapsedIn = $state.raw<{ of: FlatLine[]; hunks: Set<number> }>({ of: [], hunks: new Set() });
-  let collapsedHunks = $derived(collapsedIn.of === flatLines ? collapsedIn.hunks : NONE_COLLAPSED);
-  let allCollapsed = $derived(diffHunks.length > 0 && collapsedHunks.size === diffHunks.length);
+  let collapsedIn = $state.raw<{ of: DiffLines | null; hunks: Set<number> }>({ of: null, hunks: new Set() });
+  let collapsedHunks = $derived(collapsedIn.of === diff ? collapsedIn.hunks : NONE_COLLAPSED);
+  let allCollapsed = $derived(diff.hunkCount > 0 && collapsedHunks.size === diff.hunkCount);
 
   function setCollapsed(hunks: Set<number>) {
-    collapsedIn = { of: flatLines, hunks };
+    collapsedIn = { of: diff, hunks };
     // A collapsed hunk takes its lines off screen, and the open thread is anchored to
     // one of them.
-    const anchor = selection.range ? flatLines[selection.range.hi] : undefined;
-    if (anchor && hunks.has(anchor.hunk)) selection.close();
+    const hunk = selection.range ? diff.hunkOf(selection.range.hi) : undefined;
+    if (hunk !== undefined && hunks.has(hunk)) selection.close();
   }
   function toggleHunk(hunk: number) {
     const hunks = new Set(collapsedHunks);
@@ -196,30 +171,11 @@
     setCollapsed(allCollapsed ? new Set() : new Set(diffHunks.map((_, i) => i)));
   }
 
-  // File View's lines are indexed straight off the file, so its anchors come from the
-  // line indexes themselves rather than from the diff's two numbering spaces.
-  let threadRange = $derived.by(() => {
-    const range = selection.range;
-    if (!range) return null;
-    if (isFileView) return fileLineRange(range.lo, range.hi);
-    return lineRange(flatLines, range.lo, range.hi);
-  });
-
-  // The Anchor Text a comment written here would carry (docs/decisions/0013): the
-  // selected lines as they are on screen right now, which is what the reviewer is
-  // commenting on. Both views already have them — nothing is re-read to build it.
-  //
-  // Only new-side lines count in the diff, the same ones threadRange numbers: a del
-  // line swept up in the selection is not in the file the CLI agent will read.
-  let threadAnchorText = $derived.by(() => {
-    const range = selection.range;
-    if (!range) return [];
-    if (isFileView) return fileLines.slice(range.lo, range.hi + 1);
-    return flatLines
-      .slice(range.lo, range.hi + 1)
-      .filter((f) => f.line.newNo !== null)
-      .map((f) => f.line.content);
-  });
+  // Where a comment written here is anchored, and the Anchor Text it carries
+  // (docs/decisions/0013): the selected lines as they are on screen right now, which is
+  // what the reviewer is commenting on — nothing is re-read to build it.
+  let thread = $derived(selection.range ? lines.anchorFor(selection.range.lo, selection.range.hi) : null);
+  let threadRange = $derived(thread?.anchor ?? null);
 
   // The thread renders straight out of the Comment Queue rather than keeping its own
   // copy, so an edit here reaches the text that gets handed to the CLI agent, and
@@ -255,18 +211,14 @@
     return no ? newTokens?.[no - 1] : undefined;
   }
 
-  function isCommented(line: DiffLineData) {
-    return line.newNo !== null && commentedKeys.has(`new:${line.newNo}`);
-  }
-
   function addToQueue() {
-    if (!selection.draft.trim() || !threadRange || !selectedFile || !repoId) return;
+    if (!selection.draft.trim() || !thread || !selectedFile || !repoId) return;
     commentQueue.add({
       repoId,
       file: selectedFile,
-      ...threadRange,
+      ...thread.anchor,
       text: selection.draft.trim(),
-      anchorText: threadAnchorText,
+      anchorText: thread.anchorText,
       diffMode,
     });
     selection.draft = "";
@@ -276,48 +228,15 @@
   // the thread closes instead of reopening onto a saved comment there is none of.
   async function copyNow() {
     if (!selection.draft.trim() || !threadRange || !selectedFile) return;
-    const text = formatForAgent({ file: selectedFile, ...threadRange, text: selection.draft.trim() });
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch (e) {
-      toast(`複製到剪貼簿失敗：${e}`, { variant: "danger" });
-      return;
-    }
-    selection.close();
-    toast("已複製這則評論", { variant: "success" });
+    if (await copyNowForAgent({ file: selectedFile, ...threadRange, text: selection.draft.trim() })) selection.close();
   }
 
-  type Row =
-    | { kind: "header"; label: string; hunk: number }
-    | { kind: "line"; idx: number; line: DiffLineData };
-  let rows = $derived.by<Row[]>(() => {
-    const out: Row[] = [];
-    hunkGroups.forEach((g, hunk) => {
-      out.push({ kind: "header", label: g.header, hunk });
-      if (collapsedHunks.has(hunk)) return;
-      for (const f of g.lines) out.push({ kind: "line", idx: f.idx, line: f.line });
-    });
-    return out;
-  });
-
-  type SplitPair = ReturnType<typeof pairHunkLines>[number];
-  type SplitRow = { kind: "header"; label: string; hunk: number } | ({ kind: "row" } & SplitPair);
-  let splitRows = $derived.by<SplitRow[]>(() => {
-    const out: SplitRow[] = [];
-    hunkGroups.forEach((g, hunk) => {
-      out.push({ kind: "header", label: g.header, hunk });
-      if (collapsedHunks.has(hunk)) return;
-      const numbered: IndexedLine[] = g.lines.map((f) => ({ ...f.line, idx: f.idx }));
-      for (const pair of pairHunkLines(numbered)) {
-        out.push({ kind: "row", ...pair });
-      }
-    });
-    return out;
-  });
+  let rows = $derived(diff.unifiedRows(collapsedHunks));
+  let splitRows = $derived(diff.splitRows(collapsedHunks));
 
   // A del line paired with an add sits on the left of its row, so matching only the
   // right side would drop the thread when the reviewer switches to Split view.
-  function splitRowHasIdx(row: SplitPair, idx: number) {
+  function splitRowHasIdx(row: SplitRow & { kind: "row" }, idx: number) {
     return row.left?.idx === idx || row.right?.idx === idx;
   }
 </script>
@@ -407,7 +326,7 @@
               tokens={fileTokens?.[i]}
               index={i}
               selected={selection.includes(i)}
-              commented={commentedKeys.has(`file:${i + 1}`)}
+              commented={lines.isCommented(i, commentedKeys)}
               onGutterDown={gutterDown}
               onGutterEnter={gutterEnter}
             />
@@ -437,11 +356,11 @@
               newNo={row.line.newNo}
               index={row.idx}
               selected={selection.includes(row.idx)}
-              commented={isCommented(row.line)}
+              commented={diff.isCommented(row.idx, commentedKeys)}
               onGutterDown={gutterDown}
               onGutterEnter={gutterEnter}
             >
-              <InlineText text={row.line.content} segments={inline.get(row.idx)} tokens={lineTokens(row.line)} kind={row.line.kind} />
+              <InlineText text={row.line.content} segments={row.segments} tokens={lineTokens(row.line)} kind={row.line.kind} />
             </DiffLine>
             {#if selection.range && row.idx === selection.range.hi}
               {@render commentBlock()}
@@ -459,12 +378,12 @@
             <DiffLineSplit
               left={row.left}
               right={row.right}
-              leftSegments={row.left ? inline.get(row.left.idx) : undefined}
-              rightSegments={row.right ? inline.get(row.right.idx) : undefined}
+              leftSegments={row.left?.segments}
+              rightSegments={row.right?.segments}
               leftTokens={oldTokensAt(row.left?.no)}
               rightTokens={newTokensAt(row.right?.no)}
-              leftCommented={commentedKeys.has(`old:${row.left?.no}`)}
-              rightCommented={commentedKeys.has(`new:${row.right?.no}`)}
+              leftCommented={row.left !== null && diff.isCommented(row.left.idx, commentedKeys)}
+              rightCommented={row.right !== null && diff.isCommented(row.right.idx, commentedKeys)}
               leftSelected={row.left !== null && selection.includes(row.left.idx)}
               rightSelected={row.right !== null && selection.includes(row.right.idx)}
               onGutterDown={gutterDown}
