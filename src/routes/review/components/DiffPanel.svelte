@@ -10,11 +10,11 @@
   import EmptyState from "$lib/components/EmptyState.svelte";
   import Welcome from "./Welcome.svelte";
   import Segmented from "$lib/components/Segmented.svelte";
-  import { toast } from "$lib/toast/state.svelte";
   import { commentQueue } from "../comment-queue.svelte";
   import { selection } from "../selection.svelte";
   import { nextFileShortcut, nextHunkShortcut, prevFileShortcut, prevHunkShortcut } from "../shortcuts";
-  import { formatForAgent, formatTime } from "../helpers";
+  import { formatTime } from "../helpers";
+  import { copyNow as copyNowForAgent } from "../handoff";
   import { diffLines, fileViewLines, type DiffLines, type SplitRow } from "../lines";
   import type { SyntaxToken } from "../highlight";
   import type { ViewMode } from "../state.svelte";
@@ -228,15 +228,7 @@
   // the thread closes instead of reopening onto a saved comment there is none of.
   async function copyNow() {
     if (!selection.draft.trim() || !threadRange || !selectedFile) return;
-    const text = formatForAgent({ file: selectedFile, ...threadRange, text: selection.draft.trim() });
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch (e) {
-      toast(`複製到剪貼簿失敗：${e}`, { variant: "danger" });
-      return;
-    }
-    selection.close();
-    toast("已複製這則評論", { variant: "success" });
+    if (await copyNowForAgent({ file: selectedFile, ...threadRange, text: selection.draft.trim() })) selection.close();
   }
 
   let rows = $derived(diff.unifiedRows(collapsedHunks));

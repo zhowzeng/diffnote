@@ -2,8 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   adjacentChangedFile,
   fileAfterReload,
-  formatForAgent,
-  formatQueueForAgent,
   inlineDiff,
   pruneByName,
   pruneToChanged,
@@ -109,65 +107,6 @@ describe('pruneByName', () => {
   it('drops a dir whose name matches but whose files do not', () => {
     const tree = [dir('review', [file('a.ts')])];
     expect(pruneByName(tree, 'review')).toEqual([]);
-  });
-});
-
-describe('formatQueueForAgent', () => {
-  const items = [
-    { file: 'src/a.ts', lineStart: 3, text: 'rename this' },
-    { file: 'src/b.ts', lineStart: 10, lineEnd: 12, text: 'extract a helper' },
-  ];
-
-  it('joins every comment in the queue with a blank line between them', () => {
-    expect(formatQueueForAgent(items)).toBe(
-      'src/a.ts:L3\nrename this\n\nsrc/b.ts:L10-L12\nextract a helper'
-    );
-  });
-
-  it('puts the prefix in front once, not once per comment', () => {
-    expect(formatQueueForAgent(items, 'Apply these:')).toBe(
-      'Apply these:\n\nsrc/a.ts:L3\nrename this\n\nsrc/b.ts:L10-L12\nextract a helper'
-    );
-  });
-
-  it('leaves out the prefix when there is none', () => {
-    expect(formatQueueForAgent([items[0]], '')).toBe('src/a.ts:L3\nrename this');
-  });
-});
-
-describe('formatForAgent', () => {
-  const orphaned = {
-    file: 'src/foo.rs',
-    lineStart: 12,
-    text: '這裡應該用 open_workbook_auto',
-    orphaned: { anchorText: ['let x = foo()?;'], staged: false },
-  };
-
-  it('quotes the lines instead of a line number once they are gone', () => {
-    expect(formatForAgent(orphaned)).toBe(
-      'src/foo.rs (commented at L12; that code is no longer in the file)\n' +
-        '> let x = foo()?;\n這裡應該用 open_workbook_auto'
-    );
-  });
-
-  it('says the working tree moved when the comment was written against the index', () => {
-    expect(formatForAgent({ ...orphaned, orphaned: { ...orphaned.orphaned, staged: true } })).toBe(
-      'src/foo.rs (commented at L12 as staged; the working tree has since changed)\n' +
-        '> let x = foo()?;\n這裡應該用 open_workbook_auto'
-    );
-  });
-
-  it('prefixes every quoted line, so a multi-line comment stays apart from the code', () => {
-    const text = formatForAgent({
-      ...orphaned,
-      lineEnd: 13,
-      text: 'first line\nsecond line',
-      orphaned: { anchorText: ['let x = foo()?;', 'let y = bar()?;'], staged: false },
-    });
-    expect(text).toBe(
-      'src/foo.rs (commented at L12-L13; that code is no longer in the file)\n' +
-        '> let x = foo()?;\n> let y = bar()?;\nfirst line\nsecond line'
-    );
   });
 });
 

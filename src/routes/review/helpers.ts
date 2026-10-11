@@ -73,47 +73,6 @@ export function rangeLabel(lineStart: number, lineEnd?: number) {
   return lineEnd && lineEnd !== lineStart ? `L${lineStart}–L${lineEnd}` : `L${lineStart}`;
 }
 
-// A comment in the shape it is handed to a CLI agent: the line numbers already checked
-// against the worktree (see handoff.ts), so the formatter below only has to print them.
-export interface AgentComment {
-  file: string;
-  lineStart: number;
-  lineEnd?: number;
-  text: string;
-  // Set when the Anchor Text is no longer in the worktree (docs/decisions/0013). The
-  // hand-off then quotes those lines instead of a number that names other code now,
-  // and says why the number was dropped. `staged` picks the reason: a comment written
-  // against the index has a next step the agent can act on (`git show :path`).
-  orphaned?: { anchorText: string[]; staged: boolean };
-}
-
-// The text handed to a CLI coding agent, for both the Comment Queue and Copy Now
-// (docs/decisions/0001) — one formatter so the two can't drift apart.
-//
-// Deliberately ASCII-only (not rangeLabel above, which uses an en dash) — this text is
-// copied straight into a CLI agent's prompt.
-export function formatForAgent(comment: AgentComment) {
-  const range =
-    comment.lineEnd && comment.lineEnd !== comment.lineStart
-      ? `L${comment.lineStart}-L${comment.lineEnd}`
-      : `L${comment.lineStart}`;
-  if (!comment.orphaned) return `${comment.file}:${range}\n${comment.text}`;
-  const reason = comment.orphaned.staged
-    ? `commented at ${range} as staged; the working tree has since changed`
-    : `commented at ${range}; that code is no longer in the file`;
-  // The comment's own text can run to several lines, so the quoted code is prefixed to
-  // keep the agent from reading the reviewer's words as part of it.
-  const quote = comment.orphaned.anchorText.map((line) => `> ${line}`).join('\n');
-  return `${comment.file} (${reason})\n${quote}\n${comment.text}`;
-}
-
-// Every comment in the Comment Queue, as one block for the CLI agent. The prefix goes
-// to the agent once, ahead of every comment, rather than per comment.
-export function formatQueueForAgent(items: AgentComment[], prefix = '') {
-  const comments = items.map(formatForAgent).join('\n\n');
-  return prefix ? `${prefix}\n\n${comments}` : comments;
-}
-
 // Comments now outlive the thread that created them, so they show the wall-clock time
 // they were written rather than a relative label that would silently go stale.
 export function formatTime(ts: number) {

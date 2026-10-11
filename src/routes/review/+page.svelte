@@ -12,10 +12,9 @@
   import { reviewState } from "./state.svelte";
   import { commentQueue } from "./comment-queue.svelte";
   import { selection } from "./selection.svelte";
-  import { resolveAgainstWorktree } from "./handoff";
-  import { adjacentChangedFile, formatForAgent, formatQueueForAgent, pruneToChanged } from "./helpers";
+  import { copyOne, handOffQueue, recheckQueue } from "./handoff";
+  import { adjacentChangedFile, pruneToChanged } from "./helpers";
   import { copyAllShortcut, nextFileShortcut, paletteShortcut, prevFileShortcut, refreshShortcut } from "./shortcuts";
-  import { toast } from "$lib/toast/state.svelte";
   import { DIFF_FONT_SIZE_PX, settings, updateSettings } from "$lib/settings/state.svelte";
   import type { DiffMode, Repo } from "./types";
 
@@ -70,65 +69,31 @@
   });
 
   // Fired from the drawer's button and from the shortcut, which can run with the drawer
-  // closed — so the toast is the only feedback that anything happened.
-  //
-  // Every comment is checked against the worktree on the way out (docs/decisions/0013):
-  // the files may have been edited since the comments were written, and this is the
-  // moment the line numbers are promised to mean something.
+  // closed — so handoff.ts's toast is the only feedback that anything happened.
   async function copyAllForAgent() {
     const repoId = reviewState.repoId;
     if (!repoId) return;
-    const prefix = settings.usePrefixPrompt ? settings.prefixPrompt.trim() : "";
-    const comments = await resolveAgainstWorktree(repoId, queueItems);
-    try {
-      await navigator.clipboard.writeText(formatQueueForAgent(comments, prefix));
-    } catch (e) {
-      toast(`複製到剪貼簿失敗：${e}`, { variant: "danger" });
-      return;
-    }
-    // The copy is the hand-off, and a comment that has been handed off has done its job,
-    // so the copy empties the queue (docs/decisions/0014). A copy that went to the wrong
-    // window took the queue with it — that is what the undo is for, and it is only on
-    // offer while the toast is, so this toast stands longer than a plain report.
-    const handedOff = commentQueue.takeFor(repoId);
-    // The open thread rendered one of those comments; with it gone the thread would
-    // linger as an empty reply box, so it closes with the queue. Undo reopens it, but
-    // only if the same lines are still on screen — the range is flat line indexes into
-    // them and means nothing against others.
-    const reopen = selection.range;
-    const shown = reviewState.shownVersion;
-    selection.close();
-    toast(`已複製 ${comments.length} 則 comment，queue 已清空`, {
-      variant: "success",
-      duration: 8000,
-      action: {
-        label: "復原",
-        onclick: () => {
-          commentQueue.restore(handedOff);
-          if (reopen && !selection.range && reviewState.shownVersion === shown) {
-            selection.openAt(reopen.lo, reopen.hi);
-          }
-        },
+    // The open thread rendered one of the comments handed off; with it gone the thread
+    // would linger as an empty reply box, so it closes with the queue. Undo reopens it,
+    // but only if the same lines are still on screen — the range is flat line indexes
+    // into them and means nothing against others.
+    let reopen: { lo: number; hi: number } | null = null;
+    let shown = 0;
+    const handedOff = await handOffQueue(repoId, {
+      onUndo: () => {
+        if (reopen && !selection.range && reviewState.shownVersion === shown) {
+          selection.openAt(reopen.lo, reopen.hi);
+        }
       },
     });
+    if (!handedOff) return;
+    reopen = selection.range;
+    shown = reviewState.shownVersion;
+    selection.close();
   }
 
-  // The drawer's per-comment copy runs the same check, but it re-copies one comment
-  // rather than handing the queue over, so it leaves the queue alone — only the bulk
-  // copy empties it (docs/decisions/0014). It lives here rather than in the drawer
-  // because that check needs the Repo.
-  async function copyOneForAgent(id: string) {
-    const repoId = reviewState.repoId;
-    const item = queueItems.find((i) => i.id === id);
-    if (!repoId || !item) return;
-    const [comment] = await resolveAgainstWorktree(repoId, [item]);
-    try {
-      await navigator.clipboard.writeText(formatForAgent(comment));
-    } catch (e) {
-      toast(`複製到剪貼簿失敗：${e}`, { variant: "danger" });
-      return;
-    }
-    toast("已複製這則評論", { variant: "success" });
+  function copyOneForAgent(id: string) {
+    if (reviewState.repoId) copyOne(reviewState.repoId, id);
   }
 
   // Removing a Repo discards its Comment Queue (docs/decisions/0009), so it asks first
@@ -169,7 +134,7 @@
   async function refresh() {
     await reviewState.refresh();
     const repoId = reviewState.repoId;
-    if (repoId) await resolveAgainstWorktree(repoId, commentQueue.itemsFor(repoId));
+    if (repoId) await recheckQueue(repoId);
   }
 </script>
 
