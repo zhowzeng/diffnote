@@ -11,7 +11,7 @@
 --text-xs:12px;--text-sm:13px;--text-base:14px;--text-md:16px;--text-lg:20px;--text-xl:24px;--text-2xl:32px;
 /* Diff and File View line text. Overridden per the reviewer's Diff 字級 setting. */
 --diff-font-size:var(--text-sm);
---diff-line-height:1.8;
+--diff-line-height:var(--leading-relaxed);
 --leading-tight:1.25;--leading-normal:1.5;--leading-relaxed:1.7;
 --weight-regular:400;--weight-medium:500;--weight-semibold:600;--weight-bold:700;
 }
