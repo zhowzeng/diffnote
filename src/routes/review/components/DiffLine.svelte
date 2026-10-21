@@ -82,7 +82,7 @@
     position: relative;
     font-family: var(--font-mono);
     font-size: var(--diff-font-size);
-    line-height: 20px;
+    line-height: var(--diff-line-height);
     --line-bg: transparent;
     --line-gutter: transparent;
     --line-bar: transparent;
