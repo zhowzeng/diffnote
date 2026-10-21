@@ -98,7 +98,7 @@
     display: contents;
     font-family: var(--font-mono);
     font-size: var(--diff-font-size);
-    line-height: 20px;
+    line-height: var(--diff-line-height);
   }
   .divider {
     width: 1px;

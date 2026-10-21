@@ -61,7 +61,7 @@
     position: relative;
     font-family: var(--font-mono);
     font-size: var(--diff-font-size);
-    line-height: 20px;
+    line-height: var(--diff-line-height);
     background: transparent;
     box-shadow: inset 2px 0 0 transparent;
   }
